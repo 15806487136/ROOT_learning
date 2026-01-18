@@ -9,37 +9,19 @@ def main():
     m_min, m_max = 105.0, 160.0
     
     # -------------------------------------------------------
-    # 2. 数据读取 (Data)
+    # 2. 直接从加工后的数据文件读取
     # -------------------------------------------------------
-    # 这里填入你的 Data 文件列表
-    data_files = ["data_A.GamGam.root", "data_B.GamGam.root", "data_C.GamGam.root", "data_D.GamGam.root"]
-    
-    snapshot_file = "temp_data_for_fit.root"
-    if os.path.exists(snapshot_file):
-        os.remove(snapshot_file)
+    m_yy = ROOT.RooRealVar("m_yy", "m_{#gamma#gamma} [GeV]", m_min, m_max)
+    m_yy.setBins(n_bins)
 
-    print(">>> 读取并筛选 Data...")
-    df = ROOT.RDataFrame("mini", data_files)
-    
-    # Data 筛选条件 (Data不需要weight)
-    df_filtered = df.Filter("trigP == true && photon_n >= 2") \
-        .Define("p0", "ROOT::Math::PtEtaPhiEVector(photon_pt[0], photon_eta[0], photon_phi[0], photon_E[0])") \
-        .Define("p1", "ROOT::Math::PtEtaPhiEVector(photon_pt[1], photon_eta[1], photon_phi[1], photon_E[1])") \
-        .Define("m_yy", "(p0 + p1).M() / 1000.0") \
-        .Filter(f"m_yy >= {m_min} && m_yy <= {m_max}")
-
-    df_filtered.Snapshot("small_tree", snapshot_file, ["m_yy"])
+    tf = ROOT.TFile.Open("temp_data_for_fit.root")
+    tree = tf.Get("small_tree")
+    ds_data = ROOT.RooDataSet("ds_data", "Real Data", ROOT.RooArgSet(m_yy), ROOT.RooFit.Import(tree))
+    print(f">>> Data事件数: {ds_data.numEntries()}")
 
     # -------------------------------------------------------
     # 3. RooFit 建模
     # -------------------------------------------------------
-    m_yy = ROOT.RooRealVar("m_yy", "m_{#gamma#gamma} [GeV]", m_min, m_max)
-    m_yy.setBins(n_bins) 
-
-    tf = ROOT.TFile.Open(snapshot_file)
-    tree = tf.Get("small_tree")
-    ds_data = ROOT.RooDataSet("ds_data", "Real Data", ROOT.RooArgSet(m_yy), ROOT.RooFit.Import(tree))
-    print(f">>> Data事件数: {ds_data.numEntries()}")
 
     # --- A. 信号模型 (关键修改) ---
     
@@ -105,7 +87,7 @@ def main():
 
     plot.Draw()
     
-    c.SaveAs("final_data_fit.png")
+    c.SaveAs("data_fit.png")
     
     print("\n" + "="*40)
     print(f"拟合状态: {fit_res.status()} (0=成功)")

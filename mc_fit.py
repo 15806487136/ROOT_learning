@@ -3,24 +3,7 @@ import ROOT
 # 1. 基础配置：开启多线程并行加速
 ROOT.EnableImplicitMT()
 
-# 2. RDataFrame 阶段：物理量重构与权重计算
-# 作业要求：质量范围 105-160，分30个bin
-# 权重计算公式：scaleFactor_PHOTON * scaleFactor_PhotonTRIGGER * scaleFactor_PILEUP * mcWeight
-file_path = "mc_343981.ggH125_gamgam.GamGam.root"
-df = ROOT.RDataFrame("mini", file_path)
-
-# 定义变量与过滤条件
-df_final = df.Filter("trigP == true && photon_n >= 2") \
-    .Define("weight", "scaleFactor_PHOTON * scaleFactor_PhotonTRIGGER * scaleFactor_PILEUP * mcWeight") \
-    .Define("p0", "ROOT::Math::PtEtaPhiEVector(photon_pt[0], photon_eta[0], photon_phi[0], photon_E[0])") \
-    .Define("p1", "ROOT::Math::PtEtaPhiEVector(photon_pt[1], photon_eta[1], photon_phi[1], photon_E[1])") \
-    .Define("m_yy", "(p0 + p1).M() / 1000.0") \
-    .Filter("m_yy >= 105.0 && m_yy <= 160.0")
-
-# 将处理后的轻量化数据存入临时文件（只保留质量和权重，解决内存报错）
-df_final.Snapshot("small_tree", "temp_mc_processed.root", ["m_yy", "weight"])
-
-# 3. RooFit 阶段：提取高斯拟合参数
+# 2. 直接从加工后的文件读取数据
 # ---------------------------------------------------------
 
 # 定义观察量（名称需与树中的列名完全对应）
@@ -60,7 +43,7 @@ gauss_pdf.plotOn(plot, ROOT.RooFit.LineColor(ROOT.kRed))
 gauss_pdf.paramOn(plot, ROOT.RooFit.Layout(0.65, 0.9, 0.9))
 
 plot.Draw()
-canvas.SaveAs("mc_signal_gauss_fit.png")
+canvas.SaveAs("mc_fit.png")
 
 # 打印最终提取出的参数，方便你下一步固定它们
 print("\n" + "="*40)
