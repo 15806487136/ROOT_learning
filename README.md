@@ -7,3 +7,5 @@ This coule be a good way to keep track of my learning progress, and I will also 
 date | thought & emotion
 ---- | -----------------
 1/15/2026 | Let's go!
+1/18/2026 | I have learned how to draw a simple histogram and fit a function to it. What a complicated but beautiful work!
+
