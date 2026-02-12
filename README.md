@@ -9,4 +9,5 @@ date | thought & emotion
 1/15/2026 | Let's go!
 1/18/2026 | I have learned how to draw a simple histogram and fit a function to it.
 1/18/2026 - 2/1/2026 | Reading tutorials of ROOT and learning basic concepts.
-2/3/2026 | Learned how to use RDataframe to handle large datasets.
+2/3/2026 - 2/8/2026 | Learned how to use RDataframe to handle large datasets.
+2/9/2026 - 2/12/2026 | Tried some basic examples of drawing histograms and fitting functions.
